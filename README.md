@@ -9,3 +9,8 @@
    1、修改原始系统不能反射导致的诸多问题<br>
    2、修改android 版本兼容问题<br>
    3、修改nullporint client app process 的问题<br>
+   
+## 2020.6.9<br>
+    1、修复多版本abi 兼容问题、
+    2、修复AppOps 的问题
+    3、修复各类兼容小问题
