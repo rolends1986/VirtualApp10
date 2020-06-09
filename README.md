@@ -11,6 +11,7 @@
    3、修改nullporint client app process 的问题<br>
    
 ## 2020.6.9<br>
-    1、修复多版本abi 兼容问题、
-    2、修复AppOps 的问题
-    3、修复各类兼容小问题
+   1、修复多版本abi 兼容问题<br>
+   2、修复AppOps 的问题<br>
+   3、修复各类兼容小问题<br>
+
