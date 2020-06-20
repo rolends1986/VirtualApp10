@@ -1,9 +1,10 @@
- #    VirtualApp 10.0适配
+ #    VirtualApp Android 10.0适配
 
 软件原版https://github.com/asLody/VirtualApp<br>
 本项目纯属个人学习修改,有疑问请联系本人 VX:kook_bug
 
 由于个人刚做好兼容 android 10 、部分App还存在bug 
+做VA兼容工具https://github.com/lx82319214/kooksh
 
 ## 2020.6.4<br>
    1、修改原始系统不能反射导致的诸多问题<br>
