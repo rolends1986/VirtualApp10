@@ -1,7 +1,7 @@
  #    VirtualApp Android 10.0适配
 
 [软件原版](https://github.com/asLody/VirtualApp)<br>
-本项目纯属个人学习修改,有疑问请联系本人 VX:kook_bug
+本项目纯属个人学习修改,有疑问请联系本人  # 微信:kook_bug
 
 由于个人刚做好兼容 android 10 、部分App还存在bug <br>
 [做VA兼容工具](https://github.com/lx82319214/kooksh)
