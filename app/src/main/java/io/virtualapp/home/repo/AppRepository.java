@@ -46,7 +46,8 @@ public class AppRepository implements AppDataSource {
             List<InstalledAppInfo> infos = VirtualCore.get().getInstalledApps(0);
             List<AppData> models = new ArrayList<>();
             for (InstalledAppInfo info : infos) {
-                if (!VirtualCore.get().isPackageLaunchable(info.packageName)) {
+                // if (!VirtualCore.get().isPackageLaunchable(info.packageName)) { //Hai-Yang Li 2019.10.11
+                if (!info.isHook && !VirtualCore.get().isPackageLaunchable(info.packageName)) {
                     continue;
                 }
                 PackageAppData data = new PackageAppData(mContext, info);
@@ -84,7 +85,9 @@ public class AppRepository implements AppDataSource {
                     continue;
                 PackageInfo pkgInfo = null;
                 try {
-                    pkgInfo = context.getPackageManager().getPackageArchiveInfo(f.getAbsolutePath(), 0);
+                    // pkgInfo = context.getPackageManager().getPackageArchiveInfo(f.getAbsolutePath(), 0);
+                    pkgInfo = context.getPackageManager().getPackageArchiveInfo(    //Hai-Yang Li 2019.10.11
+                            f.getAbsolutePath(), PackageManager.GET_META_DATA);
                     pkgInfo.applicationInfo.sourceDir = f.getAbsolutePath();
                     pkgInfo.applicationInfo.publicSourceDir = f.getAbsolutePath();
                 } catch (Exception e) {
@@ -107,6 +110,10 @@ public class AppRepository implements AppDataSource {
                 continue;
             }
             ApplicationInfo ai = pkg.applicationInfo;
+            boolean isHookPlugin = false;     //Hai-Yang Li 2019.10.11
+            if (ai.metaData != null) {
+                isHookPlugin = ai.metaData.getBoolean("yahfa.hook.plugin", false);   //Hai-Yang Li 2019.10.11
+            }
             String path = ai.publicSourceDir != null ? ai.publicSourceDir : ai.sourceDir;
             if (path == null) {
                 continue;
@@ -117,9 +124,17 @@ public class AppRepository implements AppDataSource {
             info.path = path;
             info.icon = ai.loadIcon(pm);
             info.name = ai.loadLabel(pm);
+            info.isHook = isHookPlugin;    //Hai-Yang Li 2019.10.11
             InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(pkg.packageName, 0);
             if (installedAppInfo != null) {
-                info.cloneCount = installedAppInfo.getInstalledUsers().length;
+                //Hai-Yang Li 2019.10.11
+                if (isHookPlugin) { // do not show hook plugin if already installed
+                    continue;
+                } else {
+                    info.cloneCount = installedAppInfo.getInstalledUsers().length;
+                }
+                //Hai-Yang Li 2019.10.11
+                //info.cloneCount = installedAppInfo.getInstalledUsers().length;
             }
             list.add(info);
         }

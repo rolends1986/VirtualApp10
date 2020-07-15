@@ -1,0 +1,17 @@
+{
+  "buildFiles": [
+    "/home/ching/GitHub/VirtualApp10/fasthook/../../../Android/Sdk/ndk-bundle/build/cmake/android.toolchain.cmake",
+    "/home/ching/GitHub/VirtualApp10/fasthook/CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "/home/ching/Android/Sdk/cmake/3.10.2.4988404/bin/cmake --build /home/ching/GitHub/VirtualApp10/fasthook/.externalNativeBuild/cmake/release/arm64-v8a --target clean"
+  ],
+  "libraries": {
+    "fasthook-Release-arm64-v8a": {
+      "artifactName": "fasthook",
+      "buildCommand": "/home/ching/Android/Sdk/cmake/3.10.2.4988404/bin/cmake --build /home/ching/GitHub/VirtualApp10/fasthook/.externalNativeBuild/cmake/release/arm64-v8a --target fasthook",
+      "abi": "arm64-v8a",
+      "output": "/home/ching/GitHub/VirtualApp10/fasthook/build/intermediates/cmake/release/obj/arm64-v8a/libfasthook.so"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="lab.galaxy.yahfa">
+
+    <application
+        android:hasCode="false"
+        android:label="hook">
+        <activity
+            android:name="lab.galaxy.yahfa.MainActivity"
+            android:label="title_activity_main"
+           >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="yahfa.hook.plugin"
+            android:value="true" />
+    </application>
+
+</manifest>

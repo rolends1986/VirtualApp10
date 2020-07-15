@@ -1,0 +1,17 @@
+{
+  "buildFiles": [
+    "/home/ching/GitHub/VirtualApp10/demoHookPlugin/src/main/jni/Android.mk",
+    "/home/ching/GitHub/VirtualApp10/demoHookPlugin/src/main/jni/Application.mk"
+  ],
+  "cleanCommands": [
+    "/home/ching/Android/Sdk/ndk-bundle/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/home/ching/GitHub/VirtualApp10/demoHookPlugin/src/main/jni/Android.mk NDK_APPLICATION_MK\u003d/home/ching/GitHub/VirtualApp10/demoHookPlugin/src/main/jni/Application.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-21 NDK_OUT\u003d/home/ching/GitHub/VirtualApp10/demoHookPlugin/build/intermediates/ndkBuild/debug/obj NDK_LIBS_OUT\u003d/home/ching/GitHub/VirtualApp10/demoHookPlugin/build/intermediates/ndkBuild/debug/lib clean"
+  ],
+  "libraries": {
+    "helloJni-debug-x86": {
+      "artifactName": "helloJni",
+      "buildCommand": "/home/ching/Android/Sdk/ndk-bundle/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/home/ching/GitHub/VirtualApp10/demoHookPlugin/src/main/jni/Android.mk NDK_APPLICATION_MK\u003d/home/ching/GitHub/VirtualApp10/demoHookPlugin/src/main/jni/Application.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-21 NDK_OUT\u003d/home/ching/GitHub/VirtualApp10/demoHookPlugin/build/intermediates/ndkBuild/debug/obj NDK_LIBS_OUT\u003d/home/ching/GitHub/VirtualApp10/demoHookPlugin/build/intermediates/ndkBuild/debug/lib /home/ching/GitHub/VirtualApp10/demoHookPlugin/build/intermediates/ndkBuild/debug/obj/local/x86/libhelloJni.so",
+      "abi": "x86",
+      "output": "/home/ching/GitHub/VirtualApp10/demoHookPlugin/build/intermediates/ndkBuild/debug/obj/local/x86/libhelloJni.so"
+    }
+  }
+}

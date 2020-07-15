@@ -13,6 +13,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import com.lody.virtual.helper.utils.VLog;
@@ -706,6 +707,12 @@ public class VPackageManagerService implements IPackageManager {
     public IBinder getPackageInstaller() {
         return VPackageInstallerService.get();
     }
+
+    @Override
+    public String[] getInstalledHookPlugins(){
+        return HookCacheManager.getAll();
+    }
+
     void createNewUser(int userId, File userPath) {
         for (VPackage p : mPackages.values()) {
             PackageSetting setting = (PackageSetting) p.mExtras;

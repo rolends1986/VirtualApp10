@@ -34,4 +34,14 @@ public interface IPackageManager {
     List<String> querySharedPackages(String packageName) throws RemoteException;
     String getNameForUid(int uid) throws RemoteException;
     IBinder getPackageInstaller() throws RemoteException;
+
+    /**--------------------- @2019.10.08 Hai-Yang Li  -------------------*/
+    /**
+     * From VirtualHook
+     * The source code link : https://github.com/PAGalaxyLab/VirtualHook
+     *
+     * @return
+     * @throws RemoteException
+     */
+    String[] getInstalledHookPlugins() throws RemoteException;
 }

@@ -1,0 +1,3 @@
+/home/ching/GitHub/VirtualApp10/fasthook/.externalNativeBuild/cmake/release/arm64-v8a/CMakeFiles/rebuild_cache.dir
+/home/ching/GitHub/VirtualApp10/fasthook/.externalNativeBuild/cmake/release/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/ching/GitHub/VirtualApp10/fasthook/.externalNativeBuild/cmake/release/arm64-v8a/CMakeFiles/fasthook.dir

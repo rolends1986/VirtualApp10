@@ -81,6 +81,16 @@ public class VPackageManager {
             return VirtualRuntime.crash(e);
         }
     }
+
+    public String[] getInstalledHookPlugins(){
+        try {
+            return getService().getInstalledHookPlugins();
+        } catch (RemoteException e) {
+            return VirtualRuntime.crash(e);
+        }
+    }
+
+
     public List<PackageInfo> getInstalledPackages(int flags, int userId) {
         try {
             return getService().getInstalledPackages(flags, userId).getList();

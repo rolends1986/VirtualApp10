@@ -46,6 +46,21 @@ public class VEnvironment {
     public static File getPackageResourcePath(String packgeName) {
         return new File(getDataAppPackageDirectory(packgeName), "base.apk");
     }
+
+
+    /**--------------------- @2019.10.08 Hai-Yang Li  -------------------*/
+    /**
+     * From VirtualHook
+     * The source code link : https://github.com/PAGalaxyLab/VirtualHook
+     *
+     * @param packgeName
+     * @return
+     */
+    public static File getPackageLibPath(String packgeName) {
+        return new File(getDataAppPackageDirectory(packgeName), "lib");
+    }
+
+
     public static File getDataAppDirectory() {
         return ensureCreated(new File(getDataDirectory(), "app"));
     }

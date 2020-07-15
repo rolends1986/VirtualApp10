@@ -124,6 +124,8 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         });
         mMenuView.setOnClickListener(v -> mPopupMenu.show());
     }
+
+
     private static void setIconEnable(Menu menu, boolean enable) {
         try {
             @SuppressLint("PrivateApi")

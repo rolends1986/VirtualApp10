@@ -72,7 +72,8 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         VUiKit.defer().when(() -> {
             InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(info.packageName, 0);
             addResult.justEnableHidden = installedAppInfo != null;
-            if (addResult.justEnableHidden) {
+            // if (addResult.justEnableHidden) {
+            if (addResult.justEnableHidden && !info.isHook) {   // @Hai-Yang Li 2019.10.11
                 int[] userIds = installedAppInfo.getInstalledUsers();
                 int nextUserId = userIds.length;
                 for (int i = 0; i < userIds.length; i++) {
