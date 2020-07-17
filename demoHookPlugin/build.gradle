@@ -4,10 +4,10 @@ android {
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId "lab.lab.galaxy.demeHookPlugin"
+        applicationId "lab.galaxy.demeHookPlugin"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 1
+        versionCode getFileVersionCode()
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -37,3 +37,97 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
 }
+tasks.whenTaskAdded { task ->
+    if (task.name.equalsIgnoreCase("assembleDebug")) {
+        // 如果是assembleRelease任务，在最后执行导出apk以及mapping目录到指定目录
+        task.doLast {
+            autoVersionCode()
+            copy2sd()
+        }
+    }
+//    if (task.name.equalsIgnoreCase("preBuild")) {
+//        // 如果是assembleRelease任务，在最后执行导出apk以及mapping目录到指定目录
+//        task.doLast {
+//            autoVersionCode()
+//        }
+//    }
+}
+
+void outputDebugFile() {
+    android.applicationVariants.all { variant ->
+        // 如果是正式版打包
+        // if (variant.name.equalsIgnoreCase("release")) { }
+        File outputPath = new File("$rootDir" + File.separator + "hookApk")
+        println(String.format('拷贝生成文件到指定目录[%s]', outputPath.getAbsolutePath()))
+        // 拷贝apk文件
+        copy {
+            from variant.outputs[0].outputFile
+            into outputPath
+            // 重命名导出名称
+            rename {
+                "hook_plugin.apk"
+            }
+        }
+
+//        // 拷贝mapping目录
+//        copy {
+//            from variant.mappingFile.getParentFile()
+//            into new File(outputPath, 'mapping')
+//        }
+    }
+}
+
+int getFileVersionCode() {
+    def versionFile = file('version.properties')
+    def code = 1
+    if (versionFile.canRead()) {
+        def Properties versionProps = new Properties()
+        versionProps.load(new FileInputStream(versionFile))
+        code = versionProps['VERSION_CODE'].toInteger()
+    }
+    return code
+}
+
+void autoVersionCode() {
+    println("执行autoVersionCode===================>>>>>")
+    def versionFile = file('version.properties')
+    def Properties versionProps = new Properties()
+    def code = 1
+    if (versionFile.canRead()) {
+        versionProps.load(new FileInputStream(versionFile))
+        code = versionProps['VERSION_CODE'].toInteger()
+    } else {
+        versionFile.createNewFile()
+    }
+    code = code + 1
+    versionProps['VERSION_CODE'] = code.toString()
+    versionProps.store(versionFile.newWriter(), null)
+}
+
+void copy2sd() {
+    android.applicationVariants.all { variant ->
+        //具体需要apk路径
+        def path = variant.outputs[0].outputFile
+        println path
+        //adb instal 命令
+        def command = "/home/ching/Android/Sdk/platform-tools/adb push  ${path} /sdcard/magic2020.vip/magic.apk"
+        println command
+        try {
+            //调用 exec 方法执行这个命令
+            exec {
+                ExecSpec execSpec ->
+                    //配置闭包的内容
+                    executable 'bash'
+                    args '-c', command
+            }
+            //执行完之后，打印一句话
+            println "copy apk success"
+        } catch (Exception e) {
+            println e
+        }
+
+    }
+
+
+}
+

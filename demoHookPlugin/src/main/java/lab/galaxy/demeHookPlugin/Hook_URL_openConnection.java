@@ -15,12 +15,12 @@ public class Hook_URL_openConnection {
     public static String methodName = "openConnection";
     public static String methodSig = "()Ljava/net/URLConnection;";
     public static URLConnection hook(URL thiz) {
-        Log.e("YAHFA", "openConnection to "+thiz.toString());
+        Log.e("VirtualHook", "openConnection to "+thiz.toString());
         return backup(thiz);
     }
 
     public static URLConnection backup(URL thiz) {
-        Log.e("YAHFA", "should not be here");
+        Log.e("VirtualHook", "should not be here");
         return null;
     }
 }

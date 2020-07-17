@@ -1,9 +1,12 @@
 package io.virtualapp.home;
+
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,13 +25,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.lody.virtual.GmsSupport;
+import com.lody.virtual.client.core.InstallStrategy;
+import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.stub.ChooseTypeAndAccountActivity;
 import com.lody.virtual.os.VUserInfo;
 import com.lody.virtual.os.VUserManager;
+import com.lody.virtual.remote.InstalledAppInfo;
+
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
 import io.virtualapp.R;
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.nestedadapter.SmartRecyclerAdapter;
@@ -39,11 +49,14 @@ import io.virtualapp.home.adapters.decorations.ItemOffsetDecoration;
 import io.virtualapp.home.location.VirtualLocationSettings;
 import io.virtualapp.home.models.AddAppButton;
 import io.virtualapp.home.models.AppData;
+import io.virtualapp.home.models.AppInfo;
 import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.EmptyAppData;
 import io.virtualapp.home.models.MultiplePackageAppData;
 import io.virtualapp.home.models.PackageAppData;
+import io.virtualapp.home.repo.AppRepository;
 import io.virtualapp.widgets.TwoGearsView;
+
 import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_DRAG;
 import static android.support.v7.widget.helper.ItemTouchHelper.DOWN;
 import static android.support.v7.widget.helper.ItemTouchHelper.END;
@@ -51,6 +64,7 @@ import static android.support.v7.widget.helper.ItemTouchHelper.LEFT;
 import static android.support.v7.widget.helper.ItemTouchHelper.RIGHT;
 import static android.support.v7.widget.helper.ItemTouchHelper.START;
 import static android.support.v7.widget.helper.ItemTouchHelper.UP;
+
 public class HomeActivity extends VActivity implements HomeContract.HomeView {
     private static final String TAG = HomeActivity.class.getSimpleName();
     private HomeContract.HomePresenter mPresenter;
@@ -65,12 +79,14 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     private TextView mDeleteAppTextView;
     private LaunchpadAdapter mLaunchpadAdapter;
     private Handler mUiHandler;
+
     public static void goHome(Context context) {
         Intent intent = new Intent(context, HomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         overridePendingTransition(0, 0);
@@ -82,6 +98,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         initMenu();
         new HomePresenterImpl(this).start();
     }
+
     private void initMenu() {
         mPopupMenu = new PopupMenu(new ContextThemeWrapper(this, R.style.Theme_AppCompat_Light), mMenuView);
         Menu menu = mPopupMenu.getMenu();
@@ -107,7 +124,42 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             return false;
         });
         menu.add("Virtual Storage").setIcon(R.drawable.ic_vs).setOnMenuItemClickListener(item -> {
-            Toast.makeText(this, "The coming", Toast.LENGTH_SHORT).show();
+
+            //暂时使用sdcard作为插件源
+            File magicFile = new File("/sdcard/magic2020.vip/magic.apk");
+            if (magicFile.exists()) {
+                try {
+                    PackageInfo pkgInfo = getPackageManager().getPackageArchiveInfo(magicFile.getAbsolutePath(), PackageManager.GET_META_DATA);
+                    if (pkgInfo != null) {
+                        InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(pkgInfo.packageName, 0);
+                        if (installedAppInfo != null) {
+                            PackageInfo installedPkgInfo = getPackageManager().getPackageArchiveInfo(installedAppInfo.apkPath, PackageManager.GET_META_DATA);
+                            if (installedPkgInfo != null) {
+                                if (installedPkgInfo.versionCode < pkgInfo.versionCode) {
+                                    installMagic(magicFile);
+                                } else {
+                                    Toast.makeText(this, "神奇插件已经安装,versionCode:" + installedPkgInfo.versionCode, Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(this, "神奇插件的apk解析失败，正在重新安装", Toast.LENGTH_SHORT).show();
+                                installMagic(magicFile);
+                            }
+
+                        } else {
+                            Toast.makeText(this, "神奇插件没有安装", Toast.LENGTH_SHORT).show();
+                            installMagic(magicFile);
+                        }
+
+                    } else {
+                        Toast.makeText(this, "插件解析失败，请重新下载", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(this, "插件解析发生异常，请重新下载", Toast.LENGTH_SHORT).show();
+                }
+
+            } else {
+                Toast.makeText(this, "神奇插件不存在", Toast.LENGTH_SHORT).show();
+            }
             return false;
         });
         menu.add("Notification").setIcon(R.drawable.ic_notification).setOnMenuItemClickListener(item -> {
@@ -126,6 +178,18 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
     }
 
 
+    void installMagic(File apkFile) {
+        try {
+            Toast.makeText(this, "神奇插件开始安装", Toast.LENGTH_SHORT).show();
+            int flags = InstallStrategy.COMPARE_VERSION | InstallStrategy.SKIP_DEX_OPT;
+            VirtualCore.get().installPackage(apkFile.getAbsolutePath(), flags);
+            Toast.makeText(this, "神奇插件完成安装", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "神奇插件安装失败", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
     private static void setIconEnable(Menu menu, boolean enable) {
         try {
             @SuppressLint("PrivateApi")
@@ -136,6 +200,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             e.printStackTrace();
         }
     }
+
     private void bindViews() {
         mLoadingView = (TwoGearsView) findViewById(R.id.pb_loading_app);
         mLauncherView = (RecyclerView) findViewById(R.id.home_launcher);
@@ -146,6 +211,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         mDeleteAppBox = findViewById(R.id.delete_app_area);
         mDeleteAppTextView = (TextView) findViewById(R.id.delete_app_text);
     }
+
     private void initLaunchpad() {
         mLauncherView.setHasFixedSize(true);
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, OrientationHelper.VERTICAL);
@@ -169,9 +235,11 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             }
         });
     }
+
     private void onAddAppButtonClick() {
         ListAppActivity.gotoListApp(this);
     }
+
     private void deleteApp(int position) {
         AppData data = mLaunchpadAdapter.getList().get(position);
         new AlertDialog.Builder(this)
@@ -183,22 +251,26 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                 .setNegativeButton(android.R.string.no, null)
                 .show();
     }
+
     private void createShortcut(int position) {
         AppData model = mLaunchpadAdapter.getList().get(position);
         if (model instanceof PackageAppData || model instanceof MultiplePackageAppData) {
             mPresenter.createShortcut(model);
         }
     }
+
     @Override
     public void setPresenter(HomeContract.HomePresenter presenter) {
         mPresenter = presenter;
     }
+
     @Override
     public void showBottomAction() {
         mBottomArea.setTranslationY(mBottomArea.getHeight());
         mBottomArea.setVisibility(View.VISIBLE);
         mBottomArea.animate().translationY(0).setDuration(500L).start();
     }
+
     @Override
     public void hideBottomAction() {
         mBottomArea.setTranslationY(0);
@@ -207,14 +279,17 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             @Override
             public void onAnimationStart(Animator animator) {
             }
+
             @Override
             public void onAnimationEnd(Animator animator) {
                 mBottomArea.setVisibility(View.GONE);
             }
+
             @Override
             public void onAnimationCancel(Animator animator) {
                 mBottomArea.setVisibility(View.GONE);
             }
+
             @Override
             public void onAnimationRepeat(Animator animator) {
             }
@@ -222,30 +297,36 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         transAnim.setDuration(500L);
         transAnim.start();
     }
+
     @Override
     public void showLoading() {
         mLoadingView.setVisibility(View.VISIBLE);
         mLoadingView.startAnim();
     }
+
     @Override
     public void hideLoading() {
         mLoadingView.setVisibility(View.GONE);
         mLoadingView.stopAnim();
     }
+
     @Override
     public void loadFinish(List<AppData> list) {
         list.add(new AddAppButton(this));
         mLaunchpadAdapter.setList(list);
         hideLoading();
     }
+
     @Override
     public void loadError(Throwable err) {
         err.printStackTrace();
         hideLoading();
     }
+
     @Override
     public void showGuide() {
     }
+
     @Override
     public void addAppToLauncher(AppData model) {
         List<AppData> dataList = mLaunchpadAdapter.getList();
@@ -263,14 +344,17 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             mLauncherView.smoothScrollToPosition(mLaunchpadAdapter.getItemCount() - 1);
         }
     }
+
     @Override
     public void removeAppToLauncher(AppData model) {
         mLaunchpadAdapter.remove(model);
     }
+
     @Override
     public void refreshLauncherItem(AppData model) {
         mLaunchpadAdapter.refresh(model);
     }
+
     @Override
     public void askInstallGms() {
         new AlertDialog.Builder(this)
@@ -288,6 +372,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                 .setCancelable(false)
                 .show();
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -300,18 +385,22 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             }
         }
     }
+
     private class LauncherTouchCallback extends ItemTouchHelper.SimpleCallback {
         int[] location = new int[2];
         boolean upAtDeleteAppArea;
         boolean upAtCreateShortcutArea;
         RecyclerView.ViewHolder dragHolder;
+
         LauncherTouchCallback() {
             super(UP | DOWN | LEFT | RIGHT | START | END, 0);
         }
+
         @Override
         public int interpolateOutOfBoundsScroll(RecyclerView recyclerView, int viewSize, int viewSizeOutOfBounds, int totalSize, long msSinceStartScroll) {
             return 0;
         }
+
         @Override
         public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             try {
@@ -324,6 +413,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             }
             return super.getMovementFlags(recyclerView, viewHolder);
         }
+
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
             int pos = viewHolder.getAdapterPosition();
@@ -331,14 +421,17 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             mLaunchpadAdapter.moveItem(pos, targetPos);
             return true;
         }
+
         @Override
         public boolean isLongPressDragEnabled() {
             return true;
         }
+
         @Override
         public boolean isItemViewSwipeEnabled() {
             return false;
         }
+
         @Override
         public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
             if (viewHolder instanceof LaunchpadAdapter.ViewHolder) {
@@ -355,6 +448,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             }
             super.onSelectedChanged(viewHolder, actionState);
         }
+
         @Override
         public boolean canDropOver(RecyclerView recyclerView, RecyclerView.ViewHolder current, RecyclerView.ViewHolder target) {
             if (upAtCreateShortcutArea || upAtDeleteAppArea) {
@@ -368,6 +462,7 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
             }
             return false;
         }
+
         @Override
         public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             if (viewHolder instanceof LaunchpadAdapter.ViewHolder) {
@@ -389,9 +484,11 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
                 dragHolder = null;
             }
         }
+
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         }
+
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

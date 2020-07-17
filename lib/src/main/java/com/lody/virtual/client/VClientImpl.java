@@ -62,8 +62,7 @@ import java.util.List;
 import java.util.Map;
 
 import dalvik.system.DexClassLoader;
-import galaxy.demeHookPlugin.Hook_File_init;
-import galaxy.yahfa.HookInfo;
+
 import lab.galaxy.yahfa.HookMain;
 import mirror.android.app.ActivityThread;
 import mirror.android.app.ContextImpl;
@@ -386,21 +385,26 @@ public final class VClientImpl extends IVClient.Stub {
         } else {
             Log.i(TAG, "designed app debuggable is : true");
         }
-
-        try {
-            Log.i("VirtualHook", "Applying hook start : " + VPackageManager.get().getInstalledHookPlugins().length);
-            for (String pluginName : VPackageManager.get().getInstalledHookPlugins()) {
-                Log.i("VirtualHook", "Applying hook " + pluginName);
-//                VLog.w("VirtualHook", "Applying hook "+pluginName);
-                applyHookPlugin(VEnvironment.getPackageResourcePath(pluginName).getAbsolutePath(), VEnvironment.getPackageLibPath(pluginName).getAbsolutePath(), targetClassLoader);
+        String pluginPackageName = "lab.galaxy.demeHookPlugin";
+        if (!packageName.equals(pluginPackageName)) {
+            if (VirtualCore.get().isAppInstalled(pluginPackageName)) {
+                try {
+                    Log.i("VirtualHook", "Applying hook start ");
+                    applyHookPlugin(VEnvironment.getPackageResourcePath(pluginPackageName).getAbsolutePath(), VEnvironment.getPackageLibPath(pluginPackageName).getAbsolutePath(),
+                            targetClassLoader);
+                    Log.i("VirtualHook", "Applying hook end");
+                } catch (Exception e) {
+                    Log.e("VirtualHook", "Applying hook exception", e);
+                    e.printStackTrace();
+                }
+            } else {
+                Log.i("VirtualHook", "HOOK插件没有安装，无法执行HOOK的安装：" + packageName);
             }
-            Log.i("VirtualHook", "Applying hook end");
-        } catch (Exception e) {
-            Log.e("VirtualHook", "Applying hook exception",e);
-            e.printStackTrace();
+
+        } else {
+            Log.i("VirtualHook", "插件设置APP，不需要安装HOOK：" + packageName);
         }
-
-
+        VirtualCore.get().getComponentDelegate().afterApplicationCreate(mInitialApplication);
         if (processName.equals(packageName)) {
             VLog.i("调用 getVirtualController onCreateController");
             VirtualCore.get().getVirtualController().onCreateController(mInitialApplication);
@@ -418,45 +422,41 @@ public final class VClientImpl extends IVClient.Stub {
      * @param appClassLoader
      */
     private void applyHookPlugin(String apkPath, String libPath, ClassLoader appClassLoader) {
+
         DexClassLoader dexClassLoader = new DexClassLoader(apkPath,
                 VEnvironment.getDalvikCacheDirectory().getAbsolutePath(),
                 libPath,
                 appClassLoader);
+        Log.i("VirtualHook", "apkPath:" + apkPath + ",libPath:" + libPath);
+        doHookDefault(dexClassLoader, appClassLoader);
 
-        doHookDefault( appClassLoader);
-
-
-        VirtualCore.get().getComponentDelegate().afterApplicationCreate(mInitialApplication);
 
     }
 
 
-    public static void doHookDefault(ClassLoader originClassLoader) {
+    public static void doHookDefault(ClassLoader patchClassLoader, ClassLoader originClassLoader) {
         try {
 
+            Class<?> hookInfoClass = Class.forName("lab.galaxy.yahfa.HookInfo", true, patchClassLoader);
+            String[] hookItemNames = (String[]) hookInfoClass.getField("hookItemNames").get((Object) null);
+            String[] var4 = hookItemNames;
+            int var5 = hookItemNames.length;
 
-//            String[] hookItemNames = HookInfo.hookItemNames;
-//
-//            int count = hookItemNames.length;
-//
-//            for (int i = 0; i < count; ++i) {
-//                String hookItemName = hookItemNames[i];
-//                doHookItemDefault(hookItemName, originClassLoader);
-//            }
-            Log.w("VirtualHook", Hook_File_init.class.getName());
-
-            doHookItemDefault(Hook_File_init.class.getName(), originClassLoader);
+            for (int var6 = 0; var6 < var5; ++var6) {
+                String hookItemName = var4[var6];
+                doHookItemDefault(patchClassLoader, hookItemName, originClassLoader);
+            }
         } catch (Exception e) {
-            Log.e("VirtualHook", "doHookDefault hook exception",e);
+            Log.e("VirtualHook", "doHookDefault hook exception", e);
             e.printStackTrace();
         }
 
     }
 
-    private static void doHookItemDefault(String hookItemName, ClassLoader originClassLoader) {
+    private static void doHookItemDefault(ClassLoader patchClassLoader, String hookItemName, ClassLoader originClassLoader) {
         try {
             Log.i("VirtualHook", "Start hooking with item " + hookItemName);
-            Class<?> hookItem = Class.forName(hookItemName);
+            Class<?> hookItem = Class.forName(hookItemName, true, patchClassLoader);
             String className = (String) hookItem.getField("className").get((Object) null);
             String methodName = (String) hookItem.getField("methodName").get((Object) null);
             String methodSig = (String) hookItem.getField("methodSig").get((Object) null);
@@ -491,7 +491,7 @@ public final class VClientImpl extends IVClient.Stub {
 
             HookMain.findAndBackupAndHook(clazz, methodName, methodSig, hook, backup);
         } catch (Exception e) {
-            Log.e("VirtualHook", "doHookItemDefault hook exception",e);
+            Log.e("VirtualHook", "doHookItemDefault hook exception", e);
             e.printStackTrace();
         }
 

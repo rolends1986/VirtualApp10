@@ -11,6 +11,14 @@ public interface AppDataSource {
     Promise<List<AppData>, Throwable, Void> getVirtualApps();
     Promise<List<AppInfo>, Throwable, Void> getInstalledApps(Context context);
     Promise<List<AppInfo>, Throwable, Void> getStorageApps(Context context, File rootDir);
+
+    /**
+     * 获取apk的信息
+     * @param context
+     * @param apkFile apk文件路径
+     * @return
+     */
+    AppInfo getAppInfo(Context context, File apkFile);
     InstallResult addVirtualApp(AppInfoLite info);
     boolean removeVirtualApp(String packageName, int userId);
 }

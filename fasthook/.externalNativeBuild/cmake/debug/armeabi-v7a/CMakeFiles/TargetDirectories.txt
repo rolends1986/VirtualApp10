@@ -1,3 +1,0 @@
-/home/ching/GitHub/VirtualApp10/fasthook/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/rebuild_cache.dir
-/home/ching/GitHub/VirtualApp10/fasthook/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/edit_cache.dir
-/home/ching/GitHub/VirtualApp10/fasthook/.externalNativeBuild/cmake/debug/armeabi-v7a/CMakeFiles/fasthook.dir

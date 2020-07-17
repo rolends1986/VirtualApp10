@@ -1,4 +1,0 @@
-# ninja log v5
-0	183	1594712603	CMakeFiles/fasthook.dir/src/main/cpp/enhanced_dlfcn.c.o	4708babad7eaee46
-3	444	1594712603	CMakeFiles/fasthook.dir/src/main/cpp/fast_hook_manager.c.o	6196ec72aacb4f4c
-444	549	1594712603	../../../../build/intermediates/cmake/debug/obj/arm64-v8a/libfasthook.so	e27095a66dae6c11
